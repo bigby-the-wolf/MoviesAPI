@@ -1,3 +1,4 @@
+#pragma warning disable CA1812
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -23,3 +24,4 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.Run();
+#pragma warning restore CA1812
