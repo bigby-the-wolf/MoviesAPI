@@ -30,5 +30,5 @@ jobs:
       uses: actions/upload-artifact@v2.3.1
       with:
         name: webapi
-        path: MoviesAPI/webapi/**
+        path: MoviesAPI/webapi
         if-no-files-found: error
