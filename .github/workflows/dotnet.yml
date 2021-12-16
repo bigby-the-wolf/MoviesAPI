@@ -25,10 +25,10 @@ jobs:
     - name: Test
       run: dotnet test --no-build --verbosity normal
     - name: Publish
-      run: dotnet publish MoviesAPI/MoviesAPI.csproj -c Release -o website
+      run: dotnet publish MoviesAPI/MoviesAPI.csproj -c Release -o webapi
     - name: Upload a Build Artifact
       uses: actions/upload-artifact@v2.3.1
       with:
-        name: website
-        path: website/**
+        name: webapi
+        path: webapi/**
         if-no-files-found: error
