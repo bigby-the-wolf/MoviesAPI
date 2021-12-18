@@ -37,6 +37,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <ProjectReference Include="..\MoviesApi.Domain\MoviesApi.Domain.csproj" />
 	  <ProjectReference Include="..\MoviesApi.EntityFramework\MoviesApi.EntityFramework.csproj" />
 	</ItemGroup>
 
