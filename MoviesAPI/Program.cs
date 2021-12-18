@@ -1,3 +1,6 @@
+using Microsoft.EntityFrameworkCore;
+using MoviesApi.EntityFramework;
+
 #pragma warning disable CA1812
 var builder = WebApplication.CreateBuilder(args);
 
@@ -7,6 +10,9 @@ builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+var dbConnectionString = builder.Configuration.GetConnectionString("MoviesDb");
+builder.Services.AddDbContext<MoviesContext>(opt => opt.UseSqlServer(dbConnectionString));
 
 var app = builder.Build();
 
