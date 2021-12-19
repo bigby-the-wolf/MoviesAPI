@@ -10,9 +10,9 @@ namespace MoviesAPI.CommandProcessors
         Justification = "Instantiated via DI container.")]
     internal sealed class MSDICommandProcessor : ICommandProcessor
     {
-        private readonly IServiceScope _serviceProvider;
+        private readonly IServiceProvider _serviceProvider;
 
-        public MSDICommandProcessor(IServiceScope serviceProvider)
+        public MSDICommandProcessor(IServiceProvider serviceProvider)
         {
             _serviceProvider = serviceProvider;
         }
@@ -23,7 +23,7 @@ namespace MoviesAPI.CommandProcessors
             var handlerType = typeof(ICommandHandler<>)
                .MakeGenericType(command.GetType());
 
-            dynamic handler = _serviceProvider.ServiceProvider.GetRequiredService(handlerType);
+            dynamic handler = _serviceProvider.GetRequiredService(handlerType);
 
             handler.Handle((dynamic)command);
         }

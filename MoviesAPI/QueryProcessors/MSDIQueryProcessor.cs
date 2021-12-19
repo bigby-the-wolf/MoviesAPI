@@ -10,9 +10,9 @@ namespace MoviesAPI.QueryProcessors
         Justification = "Instantiated via DI container.")]
     internal sealed class MSDIQueryProcessor : IQueryProcessor
     {
-        private readonly IServiceScope _serviceProvider;
+        private readonly IServiceProvider _serviceProvider;
 
-        public MSDIQueryProcessor(IServiceScope serviceProvider)
+        public MSDIQueryProcessor(IServiceProvider serviceProvider)
         {
             _serviceProvider = serviceProvider;
         }
@@ -23,7 +23,7 @@ namespace MoviesAPI.QueryProcessors
             var handlerType = typeof(IQueryHandler<,>)
                 .MakeGenericType(query.GetType(), typeof(TResult));
 
-            dynamic handler = _serviceProvider.ServiceProvider.GetRequiredService(handlerType);
+            dynamic handler = _serviceProvider.GetRequiredService(handlerType);
 
             return handler.Handle((dynamic)query);
         }
