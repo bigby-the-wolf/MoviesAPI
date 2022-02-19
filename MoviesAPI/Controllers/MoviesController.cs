@@ -17,6 +17,9 @@ namespace MoviesAPI.Controllers
         [HttpPost]
         public async Task<IActionResult> Post([FromBody]MovieDto movieDto)
         {
+            if (movieDto is null)
+                throw new ArgumentNullException(nameof(movieDto));
+
             await Task.Delay(1000).ConfigureAwait(false);
 
             return Ok(Guid.NewGuid());

@@ -10,6 +10,24 @@ namespace MoviesApi.ApiTests.Controllers
 {
     public class MoviesControllerTests
     {
+#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
+        private MoviesController _sut;
+#pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
+
+        [SetUp]
+        public void Setup()
+        {
+            _sut = new MoviesController();
+        }
+
+        [Test]
+        public void PostRejectsNullInput()
+        {
+#pragma warning disable CS8625 // Cannot convert null literal to non-nullable reference type.
+            Assert.ThrowsAsync<ArgumentNullException>(() => _sut.Post(null));
+#pragma warning restore CS8625 // Cannot convert null literal to non-nullable reference type.
+        }
+
         [Test]
         public async Task PostValidMovie()
         {
