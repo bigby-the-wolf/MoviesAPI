@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc.Testing;
 using MoviesAPI.Controllers;
 using NUnit.Framework;
+using System;
 using System.Net.Http;
 using System.Text.Json;
 using System.Threading.Tasks;
@@ -20,6 +21,12 @@ namespace MoviesApi.ApiTests.Controllers
             Assert.True(
                 response.IsSuccessStatusCode,
                 $"Actual status code: {response.StatusCode}.");
+
+            var contentJson = await response.Content.ReadAsStringAsync();
+            var contentString = JsonSerializer.Deserialize<string>(contentJson);
+            var guid = Guid.TryParse(contentString, out _);
+
+            Assert.True(guid, $"Could not parse {contentString} to GUID.");
         }
 
         private static async Task<HttpResponseMessage> PostMovie(object movie)

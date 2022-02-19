@@ -19,7 +19,7 @@ namespace MoviesAPI.Controllers
         {
             await Task.Delay(1000).ConfigureAwait(false);
 
-            return Ok();
+            return Ok(Guid.NewGuid());
         }
     }
 }
