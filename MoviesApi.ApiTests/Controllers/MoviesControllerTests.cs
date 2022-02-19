@@ -2,6 +2,7 @@
 using MoviesAPI.Controllers;
 using NUnit.Framework;
 using System;
+using System.Net;
 using System.Net.Http;
 using System.Text.Json;
 using System.Threading.Tasks;
@@ -26,6 +27,23 @@ namespace MoviesApi.ApiTests.Controllers
 #pragma warning disable CS8625 // Cannot convert null literal to non-nullable reference type.
             Assert.ThrowsAsync<ArgumentNullException>(() => _sut.Post(null));
 #pragma warning restore CS8625 // Cannot convert null literal to non-nullable reference type.
+        }
+
+        [Test]
+        [TestCase(null, null)]
+        [TestCase("Spider Man", null)]
+        [TestCase(null, "Our favorite super hero.")]
+        [TestCase("", "")]
+        [TestCase("Spider Man", "")]
+        [TestCase("", "Our favorite super hero.")]
+        public async Task PostInvalidInput(string? name, string? description)
+        {
+            var response = await PostMovie(new {
+                name,
+                description
+                });
+
+            Assert.AreEqual(HttpStatusCode.BadRequest, response.StatusCode);
         }
 
         [Test]
