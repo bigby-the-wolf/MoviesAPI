@@ -12,9 +12,10 @@ namespace MoviesApi.EntityFramework.CommandHandlers
             _context = context;
         }
 
-        public Task HandleAsync(CreateMovieCommand command)
+        public async Task HandleAsync(CreateMovieCommand command)
         {
-            throw new NotImplementedException();
+            _context.Movies.Add(command.Movie);
+            await _context.SaveChangesAsync();
         }
     }
 }
