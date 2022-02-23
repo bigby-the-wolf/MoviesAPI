@@ -3,16 +3,16 @@ using MoviesAPI.CQS;
 
 namespace MoviesApi.EntityFramework.CommandHandlers
 {
-    public class CreateMovieCommandHandler : ICommandHandler<CreateMovieCommand>
+    public class CreateMovieCommandHandlerAsync : ICommandHandlerAsync<CreateMovieCommand>
     {
         private readonly MoviesContext _context;
 
-        public CreateMovieCommandHandler(MoviesContext context)
+        public CreateMovieCommandHandlerAsync(MoviesContext context)
         {
             _context = context;
         }
 
-        public void Handle(CreateMovieCommand command)
+        public Task HandleAsync(CreateMovieCommand command)
         {
             throw new NotImplementedException();
         }
