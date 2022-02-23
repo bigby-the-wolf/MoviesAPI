@@ -1,5 +1,11 @@
-﻿using Microsoft.AspNetCore.Mvc.Testing;
+﻿using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Mvc.Testing;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
+using Moq;
+using MoviesApi.Domain.Commands;
 using MoviesAPI.Controllers;
+using MoviesAPI.CQS;
 using NUnit.Framework;
 using System;
 using System.Net;
@@ -18,7 +24,9 @@ namespace MoviesApi.ApiTests.Controllers
         [SetUp]
         public void Setup()
         {
-            _sut = new MoviesController();
+            var createMovieCommandHandlerAsync = Mock.Of<ICommandHandlerAsync<CreateMovieCommand>>();
+
+            _sut = new MoviesController(createMovieCommandHandlerAsync);
         }
 
         [Test]
@@ -67,7 +75,7 @@ namespace MoviesApi.ApiTests.Controllers
 
         private static async Task<HttpResponseMessage> PostMovie(object movie)
         {
-            using var factory = new WebApplicationFactory<MoviesController>();
+            using var factory = new MovieApiFactory();
             var client = factory.CreateClient();
 
             string json = JsonSerializer.Serialize(movie);
@@ -77,6 +85,29 @@ namespace MoviesApi.ApiTests.Controllers
 #pragma warning restore CS8602 // Dereference of a possibly null reference.
 
             return await client.PostAsync("movies", content);
+        }
+
+        private class MovieApiFactory : WebApplicationFactory<MoviesController>
+        {
+            protected override void ConfigureWebHost(IWebHostBuilder builder)
+            {
+                if (builder is null)
+                    throw new ArgumentNullException(nameof(builder));
+        
+                builder.ConfigureServices(services =>
+                {
+                    services.RemoveAll<ICommandHandlerAsync<CreateMovieCommand>>();
+                    services.AddSingleton<ICommandHandlerAsync<CreateMovieCommand>>(new NullCreateMovieCommandHandlerAsync());
+                });
+            }
+
+            private class NullCreateMovieCommandHandlerAsync : ICommandHandlerAsync<CreateMovieCommand>
+            {
+                public Task HandleAsync(CreateMovieCommand command)
+                {
+                    return Task.CompletedTask;
+                }
+            }
         }
     }
 }

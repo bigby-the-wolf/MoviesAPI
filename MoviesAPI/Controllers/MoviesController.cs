@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using MoviesApi.Domain.Commands;
-using MoviesApi.Domain.Entities;
 using MoviesAPI.CQS;
 using MoviesAPI.Dtos;
 
@@ -10,8 +9,11 @@ namespace MoviesAPI.Controllers
     [Route("movies")]
     public class MoviesController : ControllerBase
     {
-        public MoviesController()
+        private readonly ICommandHandlerAsync<CreateMovieCommand> _createMovieCommandHandlerAsync;
+
+        public MoviesController(ICommandHandlerAsync<CreateMovieCommand> createMovieCommandHandlerAsync)
         {
+            _createMovieCommandHandlerAsync = createMovieCommandHandlerAsync;
         }
 
         [HttpPost]
@@ -22,10 +24,14 @@ namespace MoviesAPI.Controllers
 
             var id = Guid.NewGuid();
 
-            if (!movieDto.Parse(id).HasValue)
+            var movieMaybe = movieDto.Parse(id);
+            if (!movieMaybe.HasValue)
                 return BadRequest();
 
-            await Task.Delay(1000).ConfigureAwait(false);
+            var createMovieCommand = new CreateMovieCommand(movieMaybe.Value);
+            await _createMovieCommandHandlerAsync
+                .HandleAsync(createMovieCommand)
+                .ConfigureAwait(false);
 
             return Ok(id);
         }
