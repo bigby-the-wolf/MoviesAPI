@@ -31,6 +31,7 @@
       "commandName": "Docker",
       "launchBrowser": true,
       "launchUrl": "{Scheme}://{ServiceHost}:{ServicePort}/swagger",
+      "DockerfileRunArguments": "--net=moviesapi_default",
       "publishAllPorts": true,
       "useSSL": true
     }
