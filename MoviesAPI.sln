@@ -7,11 +7,13 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MoviesAPI", "MoviesAPI\Movi
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MoviesApi.ApiTests", "MoviesApi.ApiTests\MoviesApi.ApiTests.csproj", "{506DDDC3-FE25-43F2-9063-5651CF7DEE07}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MoviesApi.EntityFramework", "MoviesApi.EntityFramework\MoviesApi.EntityFramework.csproj", "{1DD84C03-470A-4747-BA4C-7652B128188F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MoviesApi.EntityFramework", "MoviesApi.EntityFramework\MoviesApi.EntityFramework.csproj", "{1DD84C03-470A-4747-BA4C-7652B128188F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MoviesAPI.CQS", "MoviesAPI.CQS\MoviesAPI.CQS.csproj", "{8408E14B-B9B0-4CCA-87ED-555D88A82143}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MoviesAPI.CQS", "MoviesAPI.CQS\MoviesAPI.CQS.csproj", "{8408E14B-B9B0-4CCA-87ED-555D88A82143}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MoviesApi.Domain", "MoviesApi.Domain\MoviesApi.Domain.csproj", "{CB879CD6-B34C-4EFB-A329-6D836648173C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MoviesApi.Domain", "MoviesApi.Domain\MoviesApi.Domain.csproj", "{CB879CD6-B34C-4EFB-A329-6D836648173C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MoviesApi.EntityFramework.Tests", "MoviesApi.EntityFramework.Tests\MoviesApi.EntityFramework.Tests.csproj", "{B499234A-BC96-41EB-8995-C95E9FD974C7}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -39,6 +41,10 @@ Global
 		{CB879CD6-B34C-4EFB-A329-6D836648173C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CB879CD6-B34C-4EFB-A329-6D836648173C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CB879CD6-B34C-4EFB-A329-6D836648173C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B499234A-BC96-41EB-8995-C95E9FD974C7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B499234A-BC96-41EB-8995-C95E9FD974C7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B499234A-BC96-41EB-8995-C95E9FD974C7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B499234A-BC96-41EB-8995-C95E9FD974C7}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
