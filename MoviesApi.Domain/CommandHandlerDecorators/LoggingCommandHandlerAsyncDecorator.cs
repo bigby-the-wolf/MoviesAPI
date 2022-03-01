@@ -3,7 +3,7 @@ using MoviesAPI.CQS;
 using System.ComponentModel;
 using System.Text.Json;
 
-namespace MoviesApi.Domain.CommandHandlers
+namespace MoviesApi.Domain.CommandHandlerDecorators
 {
     public class LoggingCommandHandlerAsyncDecorator<TCommand> : ICommandHandlerAsync<TCommand> where TCommand : ICommand
     {

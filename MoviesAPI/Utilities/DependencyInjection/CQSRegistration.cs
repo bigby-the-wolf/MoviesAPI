@@ -1,4 +1,4 @@
-﻿using MoviesApi.Domain.CommandHandlers;
+﻿using MoviesApi.Domain.CommandHandlerDecorators;
 using MoviesApi.Domain.Commands;
 using MoviesApi.EntityFramework;
 using MoviesApi.EntityFramework.CommandHandlers;
