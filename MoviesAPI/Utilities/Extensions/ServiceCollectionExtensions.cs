@@ -11,7 +11,7 @@ namespace MoviesAPI.Utilities.Extensions
 {
     internal static class ServiceCollectionExtensions
     {
-        internal static void RegisterCQS(this IServiceCollection services)
+        internal static void ConfigureCQS(this IServiceCollection services)
         {
             services.AddScoped<ICommandHandlerAsync<CreateMovieCommand>>(s =>
             {

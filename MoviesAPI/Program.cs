@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using MoviesApi.EntityFramework;
 using MoviesAPI.ExceptionFilters;
-using MoviesAPI.Utilities.DependencyInjection;
+using MoviesAPI.Utilities.Extensions;
 
 #pragma warning disable CA1812
 var builder = WebApplication.CreateBuilder(args);
@@ -18,7 +18,8 @@ builder.Services.AddSwaggerGen();
 var dbConnectionString = builder.Configuration.GetConnectionString("MoviesDb");
 builder.Services.AddDbContext<MoviesContext>(opt => opt.UseSqlServer(dbConnectionString));
 
-CQSRegistration.RegisterCQS(builder.Services);
+builder.Services.ConfigurePollyPolicies();
+builder.Services.ConfigureCQS();
 
 var app = builder.Build();
 
