@@ -3,6 +3,7 @@ using MoviesApi.Domain.CommandHandlerDecorators;
 using MoviesApi.Domain.Commands;
 using MoviesApi.EntityFramework;
 using MoviesApi.EntityFramework.CommandHandlers;
+using MoviesAPI.CommandHandlerDecorators;
 using MoviesAPI.CQS;
 using Polly;
 using Polly.Registry;
@@ -15,11 +16,14 @@ namespace MoviesAPI.Utilities.Extensions
         {
             services.AddScoped<ICommandHandlerAsync<CreateMovieCommand>>(s =>
             {
+                var policyRegistry = s.GetRequiredService<IReadOnlyPolicyRegistry<string>>();
                 var logger = s.GetRequiredService<ILogger<LoggingCommandHandlerAsyncDecorator<CreateMovieCommand>>>();
                 var context = s.GetRequiredService<MoviesContext>();
 
                 var createMovieCommandHandlerAsync = new CreateMovieCommandHandlerAsync(context);
-                return new LoggingCommandHandlerAsyncDecorator<CreateMovieCommand>(logger, createMovieCommandHandlerAsync);
+                var loggingDecorator = new LoggingCommandHandlerAsyncDecorator<CreateMovieCommand>(logger, createMovieCommandHandlerAsync);
+                
+                return new ResilientCommandHandlerAsyncDecorator<CreateMovieCommand>(policyRegistry, loggingDecorator);
             });
         }
 
