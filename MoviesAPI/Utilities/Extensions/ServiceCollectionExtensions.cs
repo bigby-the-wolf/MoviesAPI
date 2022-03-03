@@ -27,7 +27,7 @@ namespace MoviesAPI.Utilities.Extensions
         {
             var registry = new PolicyRegistry
             {
-                { PollyPolicies.SqlResiliencePolicy, Policy.Handle<SqlException>().CircuitBreakerAsync(2, TimeSpan.FromMinutes(1)) }
+                { PollyPolicies.SqlResiliencePolicy, Policy.Handle<SqlException>().CircuitBreakerAsync(2, TimeSpan.FromMinutes(2)) }
             };
 
             services.AddSingleton<IReadOnlyPolicyRegistry<string>>(registry);
