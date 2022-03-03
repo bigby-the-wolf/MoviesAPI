@@ -1,13 +1,17 @@
 using Microsoft.EntityFrameworkCore;
 using MoviesApi.EntityFramework;
-using MoviesAPI.Utilities.DependencyInjection;
+using MoviesAPI.ExceptionFilters;
+using MoviesAPI.Utilities.Extensions;
 
 #pragma warning disable CA1812
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+builder.Services.AddControllers(options =>
+{
+    options.Filters.Add<NotImplementedExceptionFilter>();
+    options.Filters.Add<BrokenCircuitExceptionFilter>();
+});
 
-builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
@@ -15,7 +19,8 @@ builder.Services.AddSwaggerGen();
 var dbConnectionString = builder.Configuration.GetConnectionString("MoviesDb");
 builder.Services.AddDbContext<MoviesContext>(opt => opt.UseSqlServer(dbConnectionString));
 
-CQSRegistration.RegisterCQS(builder.Services);
+builder.Services.ConfigurePollyPolicies();
+builder.Services.ConfigureCQS();
 
 var app = builder.Build();
 
