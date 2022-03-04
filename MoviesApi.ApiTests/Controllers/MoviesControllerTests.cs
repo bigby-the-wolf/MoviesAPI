@@ -38,7 +38,6 @@ namespace MoviesApi.ApiTests.Controllers
 #pragma warning restore CS8625 // Cannot convert null literal to non-nullable reference type.
         }
 
-        [Test]
         [TestCase(null, null)]
         [TestCase("Spider Man", null)]
         [TestCase(null, "Our favorite super hero.")]
@@ -69,9 +68,32 @@ namespace MoviesApi.ApiTests.Controllers
 
             var contentJson = await response.Content.ReadAsStringAsync();
             var contentString = JsonSerializer.Deserialize<string>(contentJson);
-            var guid = Guid.TryParse(contentString, out _);
+            var couldParse = Guid.TryParse(contentString, out _);
 
-            Assert.True(guid, $"Could not parse {contentString} to GUID.");
+            Assert.True(couldParse, $"Could not parse {contentString} to GUID.");
+        }
+
+        [Test]
+        public async Task PostValidMovieWithId()
+        {
+            var movieDto = new {
+                Id = Guid.NewGuid(),
+                Name = "Spider Man",
+                Description = "Our favorite super hero.",
+                };
+
+            var response = await PostMovie(movieDto);
+            
+            Assert.True(
+                response.IsSuccessStatusCode,
+                $"Actual status code: {response.StatusCode}.");
+
+            var contentJson = await response.Content.ReadAsStringAsync();
+            var contentString = JsonSerializer.Deserialize<string>(contentJson);
+            var couldParse = Guid.TryParse(contentString, out Guid guid);
+
+            Assert.True(couldParse, $"Could not parse {contentString} to GUID.");
+            Assert.AreEqual(movieDto.Id , guid, "Must preserve incoming GUID.");
         }
 
         private static async Task<HttpResponseMessage> PostMovie(object movie)

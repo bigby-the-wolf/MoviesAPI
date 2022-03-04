@@ -22,9 +22,7 @@ namespace MoviesAPI.Controllers
             if (movieDto is null)
                 throw new ArgumentNullException(nameof(movieDto));
 
-            var id = Guid.NewGuid();
-
-            var movieMaybe = movieDto.Parse(id);
+            var movieMaybe = movieDto.Parse();
             if (!movieMaybe.HasValue)
                 return BadRequest();
 
@@ -33,7 +31,7 @@ namespace MoviesAPI.Controllers
                 .HandleAsync(createMovieCommand)
                 .ConfigureAwait(false);
 
-            return Ok(id);
+            return Ok(createMovieCommand.Movie.Id);
         }
     }
 }
