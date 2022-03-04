@@ -13,11 +13,6 @@ namespace MoviesApi.ApiTests.CommandHandlerDecorators
     [TestFixture]
     public class ResilientCommandHandlerAsyncDecoratorTests
     {
-        [SetUp]
-        public void Setup()
-        {
-        }
-
         [Test]
         public void MustProvidePolicyRegistry()
         {
