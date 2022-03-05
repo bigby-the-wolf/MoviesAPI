@@ -1,4 +1,5 @@
-﻿using MoviesAPI.Dtos;
+﻿using MoviesApi.Domain.Entities;
+using MoviesAPI.Dtos;
 using NUnit.Framework;
 using System;
 
@@ -56,6 +57,25 @@ namespace MoviesApi.ApiTests.Dtos
             Assert.True(movie.HasValue, "Could not parse the dto.");
             Assert.NotNull(movie.Value.Id);
             Assert.AreEqual(movieDto.Id, movie.Value.Id);
+        }
+
+        [Test]
+        public void FromRejectsNullInput()
+        {
+            Assert.Throws<ArgumentNullException>(() => MovieDto.From(null!));
+        }
+
+        [Test]
+        public void FromValidInput()
+        {
+            var movie = new Movie(Guid.NewGuid(), "Spider Man", "Our favorite super hero.");
+
+            var movieDto = MovieDto.From(movie);
+
+            Assert.IsTrue(
+                movie.Id == movieDto.Id
+                && movie.Name == movieDto.Name
+                && movie.Description == movieDto.Description);
         }
     }
 }

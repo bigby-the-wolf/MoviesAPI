@@ -19,5 +19,13 @@ namespace MoviesAPI.Dtos
             var id = Id ?? Guid.NewGuid();
             return new Movie(id, Name, Description).ToMaybe();
         }
+
+        public static MovieDto From(Movie movie)
+        {
+            if (movie == null)
+                throw new ArgumentNullException(nameof(movie));
+
+            return new MovieDto { Id = movie.Id, Name = movie.Name, Description = movie.Description };
+        }
     }
 }
