@@ -11,9 +11,9 @@ using Xunit;
 
 namespace MoviesApi.EntityFramework.Tests.CommandHandlers
 {
-    public class CreateMovieCommandHandlerTests : IClassFixture<TestDatabaseFixture>
+    public class CreateMovieCommandHandlerAsyncTests : IClassFixture<TestDatabaseFixture>
     {
-        public CreateMovieCommandHandlerTests(TestDatabaseFixture dbFixture)
+        public CreateMovieCommandHandlerAsyncTests(TestDatabaseFixture dbFixture)
             => DbFixture = dbFixture;
 
         public TestDatabaseFixture DbFixture { get; }
