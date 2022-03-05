@@ -1,13 +1,18 @@
 ﻿using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Moq;
 using MoviesApi.Domain.Commands;
+using MoviesApi.Domain.Entities;
+using MoviesApi.Domain.Queries;
 using MoviesAPI.Controllers;
 using MoviesAPI.CQS;
+using MoviesAPI.Dtos;
 using NUnit.Framework;
 using System;
+using System.Collections.Generic;
 using System.Net;
 using System.Net.Http;
 using System.Text.Json;
@@ -27,7 +32,11 @@ namespace MoviesApi.ApiTests.Controllers
         {
             var createMovieCommandHandlerAsync = Mock.Of<ICommandHandlerAsync<CreateMovieCommand>>();
 
-            _sut = new MoviesController(createMovieCommandHandlerAsync);
+            var movie = new Movie(Guid.NewGuid(), "Spider Man", "Our favorite super hero.");
+            var getAllMoviesQueryHandlerAsync = Mock.Of<IQueryHandlerAsync<GetAllMoviesQuery, IReadOnlyCollection<Movie>>>(
+                m => m.HandleAsync(It.IsAny<GetAllMoviesQuery>()) == Task.FromResult(new List<Movie> { movie } as IReadOnlyCollection<Movie>));
+
+            _sut = new MoviesController(createMovieCommandHandlerAsync, getAllMoviesQueryHandlerAsync);
         }
 
         [Test]
@@ -36,6 +45,15 @@ namespace MoviesApi.ApiTests.Controllers
 #pragma warning disable CS8625 // Cannot convert null literal to non-nullable reference type.
             Assert.ThrowsAsync<ArgumentNullException>(() => _sut.Post(null));
 #pragma warning restore CS8625 // Cannot convert null literal to non-nullable reference type.
+        }
+
+        [Test]
+        public async Task GetAllReturnsDtos()
+        {
+            var getAllResult = await _sut.GetAll() as OkObjectResult;
+            
+            var movieDtos = getAllResult?.Value as IEnumerable<MovieDto>;
+            Assert.IsNotNull(movieDtos);
         }
 
         [TestCase(null, null)]
@@ -139,6 +157,9 @@ namespace MoviesApi.ApiTests.Controllers
                 {
                     services.RemoveAll<ICommandHandlerAsync<CreateMovieCommand>>();
                     services.AddSingleton<ICommandHandlerAsync<CreateMovieCommand>>(new NullCreateMovieCommandHandlerAsync());
+
+                    services.RemoveAll<IQueryHandlerAsync<GetAllMoviesQuery, IReadOnlyCollection<Movie>>>();
+                    services.AddSingleton<IQueryHandlerAsync<GetAllMoviesQuery, IReadOnlyCollection<Movie>>>(new NullGetAllMoviesQueryHandlerAsync());
                 });
             }
 
@@ -147,6 +168,14 @@ namespace MoviesApi.ApiTests.Controllers
                 public Task HandleAsync(CreateMovieCommand command)
                 {
                     return Task.CompletedTask;
+                }
+            }
+
+            private class NullGetAllMoviesQueryHandlerAsync : IQueryHandlerAsync<GetAllMoviesQuery, IReadOnlyCollection<Movie>>
+            {
+                public async Task<IReadOnlyCollection<Movie>> HandleAsync(GetAllMoviesQuery query)
+                {
+                    return await Task.Run(() => new List<Movie>());
                 }
             }
         }

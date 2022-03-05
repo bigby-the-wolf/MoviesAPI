@@ -1,8 +1,11 @@
 ﻿using Microsoft.Data.SqlClient;
 using MoviesApi.Domain.CommandHandlerDecorators;
 using MoviesApi.Domain.Commands;
+using MoviesApi.Domain.Entities;
+using MoviesApi.Domain.Queries;
 using MoviesApi.EntityFramework;
 using MoviesApi.EntityFramework.CommandHandlers;
+using MoviesApi.EntityFramework.QueryHandlers;
 using MoviesAPI.CommandHandlerDecorators;
 using MoviesAPI.CQS;
 using Polly;
@@ -25,6 +28,8 @@ namespace MoviesAPI.Utilities.Extensions
                 
                 return new ResilientCommandHandlerAsyncDecorator<CreateMovieCommand>(policyRegistry, loggingDecorator);
             });
+
+            services.AddScoped<IQueryHandlerAsync<GetAllMoviesQuery, IReadOnlyCollection<Movie>>, GetAllMoviesQueryHandlerAsync>();
         }
 
         internal static void ConfigurePollyPolicies(this IServiceCollection services)

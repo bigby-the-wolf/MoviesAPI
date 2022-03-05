@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using MoviesApi.Domain.Commands;
 using MoviesApi.Domain.Entities;
+using MoviesApi.Domain.Queries;
 using MoviesAPI.CQS;
 using MoviesAPI.Dtos;
 
@@ -11,10 +12,14 @@ namespace MoviesAPI.Controllers
     public class MoviesController : ControllerBase
     {
         private readonly ICommandHandlerAsync<CreateMovieCommand> _createMovieCommandHandlerAsync;
+        private readonly IQueryHandlerAsync<GetAllMoviesQuery, IReadOnlyCollection<Movie>> _getAllMoviesQueryHandlerAsync;
 
-        public MoviesController(ICommandHandlerAsync<CreateMovieCommand> createMovieCommandHandlerAsync)
+        public MoviesController(
+            ICommandHandlerAsync<CreateMovieCommand> createMovieCommandHandlerAsync,
+            IQueryHandlerAsync<GetAllMoviesQuery, IReadOnlyCollection<Movie>> getAllMoviesQueryHandlerAsync)
         {
             _createMovieCommandHandlerAsync = createMovieCommandHandlerAsync;
+            _getAllMoviesQueryHandlerAsync = getAllMoviesQueryHandlerAsync;
         }
 
         [HttpPost]
@@ -38,9 +43,14 @@ namespace MoviesAPI.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
-            IReadOnlyCollection<Movie> movies = await Task.Run(() => new List<Movie>()).ConfigureAwait(false);
+            var getAllMoviesQuery = new GetAllMoviesQuery();
+            var movies = await _getAllMoviesQueryHandlerAsync
+                .HandleAsync(getAllMoviesQuery)
+                .ConfigureAwait(false);
 
-            return Ok(movies);
+            var movieDtos = movies.Select(MovieDto.From);
+
+            return Ok(movieDtos);
         }
     }
 }
