@@ -9,6 +9,7 @@ using MoviesApi.EntityFramework.CommandHandlers;
 using MoviesApi.EntityFramework.QueryHandlers;
 using MoviesAPI.CommandHandlerDecorators;
 using MoviesAPI.CQS;
+using MoviesAPI.QueryHandlerDecorators;
 using Polly;
 using Polly.Registry;
 
@@ -32,11 +33,14 @@ namespace MoviesAPI.Utilities.Extensions
 
             services.AddScoped<IQueryHandlerAsync<GetAllMoviesQuery, IReadOnlyCollection<Movie>>>(s =>
             {
+                var policyRegistry = s.GetRequiredService<IReadOnlyPolicyRegistry<string>>();
                 var logger = s.GetRequiredService<ILogger<LoggingQueryHandlerAsyncDecorator<GetAllMoviesQuery, IReadOnlyCollection<Movie>>>>();
                 var context = s.GetRequiredService<MoviesContext>();
 
                 var getAllMoviesQueryHandlerAsync = new GetAllMoviesQueryHandlerAsync(context);
-                return new LoggingQueryHandlerAsyncDecorator<GetAllMoviesQuery, IReadOnlyCollection<Movie>>(logger, getAllMoviesQueryHandlerAsync);
+                var loggingDecorator = new LoggingQueryHandlerAsyncDecorator<GetAllMoviesQuery, IReadOnlyCollection<Movie>>(logger, getAllMoviesQueryHandlerAsync);
+
+                return new ResilientQueryHandlerAsyncDecorator<GetAllMoviesQuery, IReadOnlyCollection<Movie>>(policyRegistry, loggingDecorator);
             });
         }
 
