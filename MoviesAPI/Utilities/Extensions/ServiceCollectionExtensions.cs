@@ -3,6 +3,7 @@ using MoviesApi.Domain.CommandHandlerDecorators;
 using MoviesApi.Domain.Commands;
 using MoviesApi.Domain.Entities;
 using MoviesApi.Domain.Queries;
+using MoviesApi.Domain.QueryHandlerDecorators;
 using MoviesApi.EntityFramework;
 using MoviesApi.EntityFramework.CommandHandlers;
 using MoviesApi.EntityFramework.QueryHandlers;
@@ -29,7 +30,14 @@ namespace MoviesAPI.Utilities.Extensions
                 return new ResilientCommandHandlerAsyncDecorator<CreateMovieCommand>(policyRegistry, loggingDecorator);
             });
 
-            services.AddScoped<IQueryHandlerAsync<GetAllMoviesQuery, IReadOnlyCollection<Movie>>, GetAllMoviesQueryHandlerAsync>();
+            services.AddScoped<IQueryHandlerAsync<GetAllMoviesQuery, IReadOnlyCollection<Movie>>>(s =>
+            {
+                var logger = s.GetRequiredService<ILogger<LoggingQueryHandlerAsyncDecorator<GetAllMoviesQuery, IReadOnlyCollection<Movie>>>>();
+                var context = s.GetRequiredService<MoviesContext>();
+
+                var getAllMoviesQueryHandlerAsync = new GetAllMoviesQueryHandlerAsync(context);
+                return new LoggingQueryHandlerAsyncDecorator<GetAllMoviesQuery, IReadOnlyCollection<Movie>>(logger, getAllMoviesQueryHandlerAsync);
+            });
         }
 
         internal static void ConfigurePollyPolicies(this IServiceCollection services)
