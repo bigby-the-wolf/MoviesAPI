@@ -96,6 +96,16 @@ namespace MoviesApi.ApiTests.Controllers
             Assert.AreEqual(movieDto.Id , guid, "Must preserve incoming GUID.");
         }
 
+        [Test]
+        public async Task GetAllRespondsOk()
+        {
+            var response = await GetAllMovies();
+            
+            Assert.True(
+                response.IsSuccessStatusCode,
+                $"Actual status code: {response.StatusCode}.");
+        }
+
         private static async Task<HttpResponseMessage> PostMovie(object movie)
         {
             using var factory = new MovieApiFactory();
@@ -108,6 +118,14 @@ namespace MoviesApi.ApiTests.Controllers
 #pragma warning restore CS8602 // Dereference of a possibly null reference.
 
             return await client.PostAsync("movies", content);
+        }
+
+        private static async Task<HttpResponseMessage> GetAllMovies()
+        {
+            using var factory = new MovieApiFactory();
+            var client = factory.CreateClient();
+
+            return await client.GetAsync("movies");
         }
 
         private class MovieApiFactory : WebApplicationFactory<MoviesController>

@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using MoviesApi.Domain.Commands;
+using MoviesApi.Domain.Entities;
 using MoviesAPI.CQS;
 using MoviesAPI.Dtos;
 
@@ -32,6 +33,14 @@ namespace MoviesAPI.Controllers
                 .ConfigureAwait(false);
 
             return Ok(createMovieCommand.Movie.Id);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetAll()
+        {
+            IReadOnlyCollection<Movie> movies = await Task.Run(() => new List<Movie>()).ConfigureAwait(false);
+
+            return Ok(movies);
         }
     }
 }
