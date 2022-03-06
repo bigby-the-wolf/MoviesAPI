@@ -24,13 +24,31 @@ namespace MoviesApi.Domain.QueryHandlerDecorators
                 .HandleAsync(query)
                 .ConfigureAwait(false);
 
+            var serializedResult = SerializeResult(result);
+
             _logger.LogInformation(
                 "Query: {queryName}, Value: {queryValue}, Result: {queryResult}",
                 TypeDescriptor.GetClassName(query),
                 JsonSerializer.Serialize(query),
-                JsonSerializer.Serialize(result));
+                serializedResult);
 
             return result;
+        }
+
+        private static string SerializeResult(TResult result)
+        {
+            string? serializedResult;
+            
+            try
+            {
+                serializedResult = JsonSerializer.Serialize(result);
+            }
+            catch
+            {
+                serializedResult = result == null ? "Result is null" : result.ToString();
+            }
+
+            return serializedResult!;
         }
     }
 }
