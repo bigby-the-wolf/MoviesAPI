@@ -1,10 +1,8 @@
 ﻿using AutoFixture;
 using MoviesApi.Domain.Commands;
-using MoviesApi.Domain.Entities;
 using MoviesApi.EntityFramework.CommandHandlers;
 using MoviesApi.EntityFramework.Tests.Fixtures;
-using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
+using MoviesApi.EntityFramework.Tests.Utilities;
 using System.Linq;
 using System.Threading.Tasks;
 using Xunit;
@@ -32,28 +30,7 @@ namespace MoviesApi.EntityFramework.Tests.CommandHandlers
             context.ChangeTracker.Clear();
 
             var movie = context.Movies.Single(m => m.Id == createMovieCommand.Movie.Id);
-            var movieComparer = new MovieEqualityComparer();
-            Assert.True(movieComparer.Equals(createMovieCommand.Movie, movie));
-        }
-
-        private class MovieEqualityComparer : IEqualityComparer<Movie>
-        {
-            public bool Equals(Movie? x, Movie? y)
-            {
-                if (x == null && y == null)
-                    return true;
-                else if (x == null || y == null)
-                    return false;
-                
-                return x.Id == y.Id
-                    && x.Name == y.Name
-                    && x.Description == y.Description;
-            }
-
-            public int GetHashCode([DisallowNull] Movie obj)
-            {
-                return obj.Id.GetHashCode() ^ obj.Name.GetHashCode() ^ obj.Description.GetHashCode();
-            }
+            Assert.Equal(createMovieCommand.Movie, movie, new MovieEqualityComparer());
         }
     }
 }
