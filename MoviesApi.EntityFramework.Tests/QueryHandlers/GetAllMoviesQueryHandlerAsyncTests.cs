@@ -24,8 +24,8 @@ namespace MoviesApi.EntityFramework.Tests.QueryHandlers
 
             var movies = await sut.HandleAsync(getAllMoviesQuery);
 
-            var moviesInDb = await context.Movies.ToListAsync();
-            Assert.False(moviesInDb.Except(movies).Any(), "Must get exactly all movies from DB.");
+            var moviesInDb = await context.Movies.AsNoTracking().ToListAsync();
+            Assert.True(moviesInDb.All(dbMovies => movies.Any(m => m.Id == dbMovies.Id)), "Must get exactly all movies from DB.");
         }
     }
 }

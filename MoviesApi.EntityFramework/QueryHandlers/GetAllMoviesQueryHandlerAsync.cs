@@ -16,7 +16,9 @@ namespace MoviesApi.EntityFramework.QueryHandlers
 
         public async Task<IReadOnlyCollection<Movie>> HandleAsync(GetAllMoviesQuery query)
         {
-            return await _context.Movies.ToListAsync();
+            return await _context.Movies
+                .AsNoTracking()
+                .ToListAsync();
         }
     }
 }
