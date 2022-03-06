@@ -1,4 +1,5 @@
-﻿using Microsoft.Data.SqlClient;
+﻿using CSharpFunctionalExtensions;
+using Microsoft.Data.SqlClient;
 using MoviesApi.Domain.CommandHandlerDecorators;
 using MoviesApi.Domain.Commands;
 using MoviesApi.Domain.Entities;
@@ -41,6 +42,18 @@ namespace MoviesAPI.Utilities.Extensions
                 var loggingDecorator = new LoggingQueryHandlerAsyncDecorator<GetAllMoviesQuery, IReadOnlyCollection<Movie>>(logger, getAllMoviesQueryHandlerAsync);
 
                 return new ResilientQueryHandlerAsyncDecorator<GetAllMoviesQuery, IReadOnlyCollection<Movie>>(policyRegistry, loggingDecorator);
+            });
+
+            services.AddScoped<IQueryHandlerAsync<GetMovieByIdQuery, Maybe<Movie>>>(s =>
+            {
+                var policyRegistry = s.GetRequiredService<IReadOnlyPolicyRegistry<string>>();
+                var logger = s.GetRequiredService<ILogger<LoggingQueryHandlerAsyncDecorator<GetMovieByIdQuery, Maybe<Movie>>>>();
+                var context = s.GetRequiredService<MoviesContext>();
+
+                var getMovieByIdQueryHandlerAsync = new GetMovieByIdQueryHandlerAsync(context);
+                var loggingDecorator = new LoggingQueryHandlerAsyncDecorator<GetMovieByIdQuery, Maybe<Movie>>(logger, getMovieByIdQueryHandlerAsync);
+
+                return new ResilientQueryHandlerAsyncDecorator<GetMovieByIdQuery, Maybe<Movie>>(policyRegistry, loggingDecorator);
             });
         }
 

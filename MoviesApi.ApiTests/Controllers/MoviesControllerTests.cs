@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Hosting;
+﻿using CSharpFunctionalExtensions;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.DependencyInjection;
@@ -23,37 +24,57 @@ namespace MoviesApi.ApiTests.Controllers
     [TestFixture]
     public class MoviesControllerTests
     {
-#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
-        private MoviesController _sut;
-#pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
-
-        [SetUp]
-        public void Setup()
-        {
-            var createMovieCommandHandlerAsync = Mock.Of<ICommandHandlerAsync<CreateMovieCommand>>();
-
-            var movie = new Movie(Guid.NewGuid(), "Spider Man", "Our favorite super hero.");
-            var getAllMoviesQueryHandlerAsync = Mock.Of<IQueryHandlerAsync<GetAllMoviesQuery, IReadOnlyCollection<Movie>>>(
-                m => m.HandleAsync(It.IsAny<GetAllMoviesQuery>()) == Task.FromResult(new List<Movie> { movie } as IReadOnlyCollection<Movie>));
-
-            _sut = new MoviesController(createMovieCommandHandlerAsync, getAllMoviesQueryHandlerAsync);
-        }
-
         [Test]
         public void PostRejectsNullInput()
         {
+            var sut = GetSimpleSUT();
+
 #pragma warning disable CS8625 // Cannot convert null literal to non-nullable reference type.
-            Assert.ThrowsAsync<ArgumentNullException>(() => _sut.Post(null));
+            Assert.ThrowsAsync<ArgumentNullException>(() => sut.Post(null));
 #pragma warning restore CS8625 // Cannot convert null literal to non-nullable reference type.
         }
 
         [Test]
         public async Task GetAllReturnsDtos()
         {
-            var getAllResult = await _sut.GetAll() as OkObjectResult;
+            var sut = GetSimpleSUT();
+
+            var getAllResult = await sut.GetAll() as OkObjectResult;
             
             var movieDtos = getAllResult?.Value as IEnumerable<MovieDto>;
             Assert.IsNotNull(movieDtos);
+        }
+
+        [Test]
+        public async Task GetReturnsDto()
+        {
+            var createMovieCommandHandlerAsync = Mock.Of<ICommandHandlerAsync<CreateMovieCommand>>();
+            var getAllMoviesQueryHandlerAsync = Mock.Of<IQueryHandlerAsync<GetAllMoviesQuery, IReadOnlyCollection<Movie>>>();
+            var movieId = Guid.NewGuid();
+            var movie = new Movie(movieId, "Spider Man", "Our favorite super hero.");
+            var getMovieByIdQueryHandlerAsync = Mock.Of<IQueryHandlerAsync<GetMovieByIdQuery, Maybe<Movie>>>(
+                m => m.HandleAsync(It.Is<GetMovieByIdQuery>(q => q.Id == movieId)) == Task.FromResult(Maybe.From(movie)));
+            var sut = new MoviesController(createMovieCommandHandlerAsync, getAllMoviesQueryHandlerAsync, getMovieByIdQueryHandlerAsync);
+
+            var getResult = await sut.Get(movieId) as OkObjectResult;
+            
+            var movieDto = getResult?.Value as MovieDto;
+            Assert.IsNotNull(movieDto);
+        }
+
+        [Test]
+        public async Task GetReturnsNotFound()
+        {
+            var createMovieCommandHandlerAsync = Mock.Of<ICommandHandlerAsync<CreateMovieCommand>>();
+            var getAllMoviesQueryHandlerAsync = Mock.Of<IQueryHandlerAsync<GetAllMoviesQuery, IReadOnlyCollection<Movie>>>();
+            var movieId = Guid.NewGuid();
+            var getMovieByIdQueryHandlerAsync = Mock.Of<IQueryHandlerAsync<GetMovieByIdQuery, Maybe<Movie>>>(
+                m => m.HandleAsync(It.Is<GetMovieByIdQuery>(q => q.Id == movieId)) == Task.FromResult(Maybe<Movie>.None));
+            var sut = new MoviesController(createMovieCommandHandlerAsync, getAllMoviesQueryHandlerAsync, getMovieByIdQueryHandlerAsync);
+
+            var getResult = await sut.Get(movieId) as NotFoundResult;
+            
+            Assert.IsNotNull(getResult);
         }
 
         [TestCase(null, null)]
@@ -124,6 +145,29 @@ namespace MoviesApi.ApiTests.Controllers
                 $"Actual status code: {response.StatusCode}.");
         }
 
+        [Test]
+        public async Task GetRespondsOk()
+        {
+            var response = await GetMovie(Guid.NewGuid());
+            
+            Assert.True(
+                response.IsSuccessStatusCode,
+                $"Actual status code: {response.StatusCode}.");
+        }
+
+        private static MoviesController GetSimpleSUT()
+        {
+            var createMovieCommandHandlerAsync = Mock.Of<ICommandHandlerAsync<CreateMovieCommand>>();
+
+            var movie = new Movie(Guid.NewGuid(), "Spider Man", "Our favorite super hero.");
+            var getAllMoviesQueryHandlerAsync = Mock.Of<IQueryHandlerAsync<GetAllMoviesQuery, IReadOnlyCollection<Movie>>>(
+                m => m.HandleAsync(It.IsAny<GetAllMoviesQuery>()) == Task.FromResult(new List<Movie> { movie } as IReadOnlyCollection<Movie>));
+            var getMovieByIdQueryHandlerAsync = Mock.Of<IQueryHandlerAsync<GetMovieByIdQuery, Maybe<Movie>>>(
+                m => m.HandleAsync(It.IsAny<GetMovieByIdQuery>()) == Task.FromResult(Maybe.From(movie)));
+
+            return new MoviesController(createMovieCommandHandlerAsync, getAllMoviesQueryHandlerAsync, getMovieByIdQueryHandlerAsync);
+        }
+
         private static async Task<HttpResponseMessage> PostMovie(object movie)
         {
             using var factory = new MovieApiFactory();
@@ -146,6 +190,14 @@ namespace MoviesApi.ApiTests.Controllers
             return await client.GetAsync("movies");
         }
 
+        private static async Task<HttpResponseMessage> GetMovie(Guid id)
+        {
+            using var factory = new MovieApiFactory();
+            var client = factory.CreateClient();
+
+            return await client.GetAsync($"movies/{id}");
+        }
+
         private class MovieApiFactory : WebApplicationFactory<MoviesController>
         {
             protected override void ConfigureWebHost(IWebHostBuilder builder)
@@ -160,6 +212,9 @@ namespace MoviesApi.ApiTests.Controllers
 
                     services.RemoveAll<IQueryHandlerAsync<GetAllMoviesQuery, IReadOnlyCollection<Movie>>>();
                     services.AddSingleton<IQueryHandlerAsync<GetAllMoviesQuery, IReadOnlyCollection<Movie>>>(new NullGetAllMoviesQueryHandlerAsync());
+
+                    services.RemoveAll<IQueryHandlerAsync<GetMovieByIdQuery, Maybe<Movie>>>();
+                    services.AddSingleton<IQueryHandlerAsync<GetMovieByIdQuery, Maybe<Movie>>>(new NullGetMovieByIdQueryHandlerAsync());
                 });
             }
 
@@ -176,6 +231,15 @@ namespace MoviesApi.ApiTests.Controllers
                 public async Task<IReadOnlyCollection<Movie>> HandleAsync(GetAllMoviesQuery query)
                 {
                     return await Task.Run(() => new List<Movie>());
+                }
+            }
+
+            private class NullGetMovieByIdQueryHandlerAsync : IQueryHandlerAsync<GetMovieByIdQuery, Maybe<Movie>>
+            {
+                public async Task<Maybe<Movie>> HandleAsync(GetMovieByIdQuery query)
+                {
+                    var movie = new Movie(Guid.NewGuid(), "Spider Man", "Our favorite super hero.");
+                    return await Task.Run(() => Maybe.From(movie));
                 }
             }
         }
