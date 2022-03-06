@@ -2,6 +2,7 @@
 using MoviesApi.Domain.Queries;
 using MoviesApi.EntityFramework.QueryHandlers;
 using MoviesApi.EntityFramework.Tests.Fixtures;
+using MoviesApi.EntityFramework.Tests.Utilities;
 using System.Linq;
 using System.Threading.Tasks;
 using Xunit;
@@ -25,7 +26,7 @@ namespace MoviesApi.EntityFramework.Tests.QueryHandlers
             var movies = await sut.HandleAsync(getAllMoviesQuery);
 
             var moviesInDb = await context.Movies.AsNoTracking().ToListAsync();
-            Assert.True(moviesInDb.All(dbMovies => movies.Any(m => m.Id == dbMovies.Id)), "Must get exactly all movies from DB.");
+            Assert.False(moviesInDb.Except(movies, new MovieEqualityComparer()).Any(), "Must get exactly all movies from DB.");
         }
     }
 }
