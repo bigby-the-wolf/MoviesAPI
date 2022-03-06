@@ -1,4 +1,4 @@
-﻿using Functional.Maybe;
+﻿using CSharpFunctionalExtensions;
 using MoviesApi.Domain.Entities;
 
 namespace MoviesAPI.Dtos
@@ -12,12 +12,12 @@ namespace MoviesAPI.Dtos
         public Maybe<Movie> Parse()
         {
             if (string.IsNullOrEmpty(Name))
-                return Maybe<Movie>.Nothing;
+                return Maybe<Movie>.None;
             if (string.IsNullOrEmpty(Description))
-                return Maybe<Movie>.Nothing;
+                return Maybe<Movie>.None;
 
             var id = Id ?? Guid.NewGuid();
-            return new Movie(id, Name, Description).ToMaybe();
+            return new Movie(id, Name, Description);
         }
 
         public static MovieDto From(Movie movie)
