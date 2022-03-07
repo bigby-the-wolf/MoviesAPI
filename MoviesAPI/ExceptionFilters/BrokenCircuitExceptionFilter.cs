@@ -18,7 +18,7 @@ namespace MoviesAPI.ExceptionFilters
 
             if (context.Exception is BrokenCircuitException)
             {
-                context.Result = context.Result = new ObjectResult("Dependant service unavailable.")
+                context.Result = new ObjectResult("Dependant service unavailable.")
                 {
                     StatusCode = (int)HttpStatusCode.ServiceUnavailable
                 };

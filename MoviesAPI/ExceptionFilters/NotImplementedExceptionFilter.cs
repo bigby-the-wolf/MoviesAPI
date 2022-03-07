@@ -17,7 +17,7 @@ namespace MoviesAPI.ExceptionFilters
 
             if (context.Exception is NotImplementedException notImplementedException)
             {
-                context.Result = context.Result = new ObjectResult(notImplementedException.Message)
+                context.Result = new ObjectResult(notImplementedException.Message)
                 {
                     StatusCode = (int)HttpStatusCode.NotImplemented
                 };
